@@ -43,3 +43,37 @@ var firebaseConfig = {
       return false;
 
   });
+
+  database.ref().on("child_added", function(childSnapshot) {
+      console.log("Child Snapshot Value: " + childSnapshot.val());
+      var newName = childSnapshot.val().name;
+      var newDestination = childSnapshot.val().dest;
+      var newFirstTime = childSnapshot.val().first;
+      var newFrequency = childSnapshot.val().freq;
+
+      console.log('newFirstTime', newFirstTime)
+      console.log("newName: " + newFirstTime);
+      console.log("newDestination: " + newDestination);
+      console.log("newFrequency: " + newFrequency);
+
+      var currentTime = moment();
+      console.log(moment(currentTime).format("hh:mm"));
+
+      var firstTimeConverted = moment(newFirstTime, "hh:mm").subtract(1, "days");
+      var timeDiff = moment().diff(moment(firstTimeConverted), "minutes");
+      console.log("Difference in time: " + timeDiff);
+
+      var remainder = timeDiff % newFrequency;
+      console.log("Remainder: ", remainder);
+
+      var minsUntilTrain = newFrequency - remainder;
+      console.log("Time Til Train: " + minsUntilTrain);
+
+      var nextTrainTime = moment().add(minsUntilTrain, "minutes");
+      console.log("Next arrival: " + moment(nextTrainTime).format("hh:mm"));
+
+      $("#trainTable > tbody").append("<tr><td>" + newName + "<tr><td>" + newDestination + "<tr><td>" + newFrequency + "</td><td>" + moment(nextTrainTime).format("hh:mm") + "</td><td>" + minsUntilTrain);
+
+      return false;
+
+  });
