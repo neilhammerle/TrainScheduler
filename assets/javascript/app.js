@@ -15,73 +15,54 @@ $(document).ready(function(){
   var database = firebase.database();
   var trainName = "";
   var destination = "";
-  var time = "";
+  var firstTime = "";
   var frequency = "";
 
   $("#add-train").on("click", function(){
       event.preventDefault();
 
-      name = $(".trainName").val().trim();
-      destination = $(".destination").val().trim;
-      time = $(".time").val().trim();
-      frequency = $(".frequency").val().trim();
+      trainName = $("#trainName").val().trim();
+      destination = $("#destination").val().trim();
+      time = $("#firstTime").val().trim();
+      frequency = $("#frequency").val().trim();
 
-      var newTrain = {
-          name: newName,
-          destination: newDestination,
-          time: newFirstTime,
-          frequency: newFrequency,
-      }
-      database.ref().push(newTrain);
-      console.log(newTrain);
+     database.ref().push({
+         trainName,
+         destination,
+         time,
+         frequency,
+     });
 
-      $(".trainName").val("");
-      $(".destination").val("");
-      $(".firstTime").val("");
-      $(".frequency").val("");
+     $(".trainName").val("");
+     $(".destination").val("");
+     $(".time").val("");
+     $(".frequency").val("");
 
-      console.log ("newTrain: " + newTrain);
-      console.log ("Name: " + newTrain.name);
-      console.log ("Destination: " + newTrain.dest);
-      console.log ("First Time: " + newTrain.first);
-      console.log ("Frequency: " + newTrain.freq);
+    });
 
-      return false;
+    database.ref().on("child_added",function(childSnapshot){
 
-  });
+        var csv = childSnapshot.val();
 
-  database.ref().on("child_added", function(childSnapshot) {
-      console.log("Child Snapshot Value: " + childSnapshot.val());
-      var newName = childSnapshot.val().name;
-      var newDestination = childSnapshot.val().dest;
-      var newFirstTime = childSnapshot.val().first;
-      var newFrequency = childSnapshot.val().freq;
+        console.log("===============");
+        console.log("train Name: ", csv.trainName);
+        console.log("destination: ", csv.destination);
+        console.log("first train time: ", csv.time);
+        console.log("frequency:", csv.frequency);
 
-      console.log('newFirstTime', newFirstTime)
-      console.log("newName: " + newFirstTime);
-      console.log("newDestination: " + newDestination);
-      console.log("newFrequency: " + newFrequency);
+        var currentTime = moment().format("HH:mm");
 
-      var currentTime = moment();
-      console.log(moment(currentTime).format("hh:mm"));
+        var firstTime = moment(csv.time, "HH:mm");
 
-      var firstTimeConverted = moment(newFirstTime, "hh:mm").subtract(1, "days");
-      var timeDiff = moment().diff(moment(firstTimeConverted), "minutes");
-      console.log("Difference in time: " + timeDiff);
+        var difference = moment().diff(moment(firstTime), "minutes");
 
-      var remainder = timeDiff % newFrequency;
-      console.log("Remainder: ", remainder);
+        var f = parseInt(csv.frequency);
+        var remain = difference % f;
 
-      var minsUntilTrain = newFrequency - remainder;
-      console.log("Time Til Train: " + minsUntilTrain);
+        var minsAway = f - remain;
 
-      var nextTrainTime = moment().add(minsUntilTrain, "minutes");
-      console.log("Next arrival: " + moment(nextTrainTime).format("hh:mm"));
+        var nextArrival = moment().add(minsAway, "minutes").format("HH:mm");
 
-      $("#trainTable > tbody").append("<tr><td>" + newName + "<tr><td>" + newDestination + "<tr><td>" + newFrequency + "</td><td>" + moment(nextTrainTime).format("hh:mm") + "</td><td>" + minsUntilTrain);
-
-      return false;
-
-  });
-
+        $("#trainTable").append("<tr><td>" + csv.trainName+"</tr><td>"+csv.destination+"</tr><td>"+csv.frequency);
+        });
 });
