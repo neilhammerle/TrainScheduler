@@ -1,3 +1,5 @@
+$(document).ready(function(){
+
 var firebaseConfig = {
     apiKey: "AIzaSyBdJO6apaIaqKPnjADMDH8xep5_yivp2ek",
     authDomain: "trainscheduler-f8cee.firebaseapp.com",
@@ -77,3 +79,5 @@ var firebaseConfig = {
       return false;
 
   });
+
+});
